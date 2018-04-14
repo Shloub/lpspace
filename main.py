@@ -8,4 +8,5 @@ class HelloWorld(object):
 
 
 if __name__ == '__main__':
+    cherrypy.config.update({'server.socket_host': 'shloub.liquipedia.space'})
     cherrypy.quickstart(HelloWorld())
