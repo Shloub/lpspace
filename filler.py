@@ -54,7 +54,9 @@ def filler(**kwargs):
             data["win" + s] = "1"
         if int(data["p1stock" + s]) < int(data["p2stock" + s]):
             data["win" + s] = "2"
-        details += br + p1char + p2char + p1stock + p2stock + stage + '\n'
+        details += br + p1char + p2char + stage + p1stock + p2stock + '\n'
+        if data["p1stock" + s] == data["p2stock" + s] == "0":
+            data["p1stock" + s] = data["p2stock" + s] = ""
     myform = form(myround + details, "fill", "post")
     myarea = textarea(rows="10", cols="150", txt=TEMPLATE.format(**data))
     return page("filler", myform + myarea)
