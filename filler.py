@@ -48,7 +48,7 @@ def filler(**kwargs):
                           value=data["p2stock" + s])
         data["stage" + s] = html.escape(kwargs.get("stage" + s, ""))
         stage = select("stage" + s, STAGES,
-                       data["stage" + s])
+                       kwargs.get("stage" + s, ""))
         data["win" + s] = ""
         if int(data["p1stock" + s]) > int(data["p2stock" + s]):
             data["win" + s] = "1"
