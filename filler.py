@@ -25,14 +25,19 @@ TEMPLATE += """|{myround}date={date}
 
 
 def filler(**kwargs):
-    today = datetime.date.today()
-    day = today.strftime("%d").lstrip("0")
-    date = today.strftime("%B {day}, %Y".format(day=day))
-    data = {"date": date,
-            "details": DETAILS,
+    data = {"details": DETAILS,
             "myround": html.escape(kwargs.get("round", "")),
             "win": "",
             }
+    data["server_date"] = html.escape(kwargs.get("server_date", "today"))
+    server_date = select("server_date", ["today", "yesterday"],
+                         data["server_date"])
+    today = datetime.date.today()
+    if data["server_date"] == "yesterday":
+        today -= datetime.timedelta(days=1)
+    day = today.strftime("%d").lstrip("0")
+    date = today.strftime("%B {day}, %Y".format(day=day))
+    data["date"] = date
     myround = myinput("round", value=data["myround"])
     details = ""
     prevp1char = prevp2char = ""
@@ -64,7 +69,7 @@ def filler(**kwargs):
             data["win" + s] = "1"
         if int(data["p1stock" + s]) < int(data["p2stock" + s]):
             data["win" + s] = "2"
-        details += br + p1char + p2char + stage + br + p1stock + p2stock + '\n'
+        details += p1char + p2char + stage + br + p1stock + p2stock + br + '\n'
         if data["p1stock" + s] == data["p2stock" + s] == "0":
             data["p1stock" + s] = data["p2stock" + s] = ""
         if not data["stage" + s]:
@@ -74,6 +79,6 @@ def filler(**kwargs):
         data["win"] = "1"
     if wins.count("2") >= 3:
         data["win"] = "2"
-    myform = form(myround + details, "fill", "post")
+    myform = form(myround + br + details + server_date, "fill", "post")
     myarea = textarea(rows="10", cols="150", txt=TEMPLATE.format(**data))
     return page("filler", myform + myarea)
