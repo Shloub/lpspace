@@ -15,7 +15,8 @@ STAGES = ["", "Battlefield", "Dream Land", "Final Destination",
 
 DETAILS = "{{BracketMatchDetails|reddit=|comment=|vod=}}"
 
-TEMPLATE = ""
+TEMPLATE = """|{myround}win={win}
+"""
 for game in range(1, 6):
     TEMPLATE += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
 TEMPLATE += """|{myround}date={date}
@@ -29,7 +30,9 @@ def filler(**kwargs):
     date = today.strftime("%B {day}, %Y".format(day=day))
     data = {"date": date,
             "details": DETAILS,
-            "myround": html.escape(kwargs.get("round", ""))}
+            "myround": html.escape(kwargs.get("round", "")),
+            "win": "",
+            }
     myround = myinput("round", value=data["myround"])
     details = ""
     for g in range(1, 6):
@@ -57,6 +60,11 @@ def filler(**kwargs):
         details += br + p1char + p2char + stage + br + p1stock + p2stock + '\n'
         if data["p1stock" + s] == data["p2stock" + s] == "0":
             data["p1stock" + s] = data["p2stock" + s] = ""
+    wins = [data["win" + str(g)] for g in range(1, 6)]
+    if wins.count("1") >= 3:
+        data["win"] = "1"
+    if wins.count("2") >= 3:
+        data["win"] = "2"
     myform = form(myround + details, "fill", "post")
     myarea = textarea(rows="10", cols="150", txt=TEMPLATE.format(**data))
     return page("filler", myform + myarea)
