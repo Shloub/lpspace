@@ -15,13 +15,6 @@ STAGES = ["", "Battlefield", "Dream Land", "Final Destination",
 
 DETAILS = "{{BracketMatchDetails|reddit=|comment=|vod=}}"
 
-TEMPLATE = """|{myround}win={win}
-"""
-for game in range(1, 6):
-    TEMPLATE += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
-TEMPLATE += """|{myround}date={date}
-|{myround}details={details}
-"""
 
 
 def filler(**kwargs):
@@ -32,6 +25,19 @@ def filler(**kwargs):
     data["server_date"] = html.escape(kwargs.get("server_date", "today"))
     server_date = select("server_date", ["today", "yesterday"],
                          data["server_date"])
+    data["set_len"] = html.escape(kwargs.get("set_len", "bo5"))
+    set_len = select("set_len", ["bo5", "bo3"],
+                         data["set_len"])
+    nbgames = 5
+    if data["set_len"] == "bo3":
+        nbgames = 3
+    template = """|{myround}win={win}
+"""
+    for game in range(1, nbgames+1):
+        template += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
+    template += """|{myround}date={date}
+|{myround}details={details}
+"""
     today = datetime.date.today()
     if data["server_date"] == "yesterday":
         today -= datetime.timedelta(days=1)
@@ -41,7 +47,7 @@ def filler(**kwargs):
     myround = myinput("round", value=data["myround"])
     details = ""
     prevp1char = prevp2char = ""
-    for g in range(1, 6):
+    for g in range(1, nbgames+1):
         s = str(g)
         data["stage" + s] = html.escape(kwargs.get("stage" + s, ""))
         stage = select("stage" + s, STAGES,
@@ -74,11 +80,12 @@ def filler(**kwargs):
             data["p1stock" + s] = data["p2stock" + s] = ""
         if not data["stage" + s]:
             data["p1char" + s] = data["p2char" + s] = ""
-    wins = [data["win" + str(g)] for g in range(1, 6)]
-    if wins.count("1") >= 3:
+    wins = [data["win" + str(g)] for g in range(1, nbgames+1)]
+    if wins.count("1") >= (nbgames//2)+1:
         data["win"] = "1"
-    if wins.count("2") >= 3:
+    if wins.count("2") >= (nbgames//2)+1:
         data["win"] = "2"
-    myform = form(myround + br + details + server_date, "fill", "post")
-    myarea = textarea(rows="10", cols="150", txt=TEMPLATE.format(**data))
+    myform = form(myround + br + details + server_date + set_len,
+                  "fill", "post")
+    myarea = textarea(rows="10", cols="150", txt=template.format(**data))
     return page("filler", myform + myarea)
