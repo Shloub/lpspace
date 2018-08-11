@@ -35,12 +35,22 @@ def filler(**kwargs):
             }
     myround = myinput("round", value=data["myround"])
     details = ""
+    prevp1char = prevp2char = ""
     for g in range(1, 6):
         s = str(g)
+        data["stage" + s] = html.escape(kwargs.get("stage" + s, ""))
+        stage = select("stage" + s, STAGES,
+                       kwargs.get("stage" + s, ""))
         data["p1char" + s] = html.escape(kwargs.get("p1char" + s, ""))
+        if not data["stage" + s]:
+            data["p1char" + s] = prevp1char
+        prevp1char = data["p1char" + s]
         p1char = select("p1char" + s, CHARACTERS,
                         data["p1char" + s])
         data["p2char" + s] = html.escape(kwargs.get("p2char" + s, ""))
+        if not data["stage" + s]:
+            data["p2char" + s] = prevp2char
+        prevp2char = data["p2char" + s]
         p2char = select("p2char" + s, CHARACTERS,
                         data["p2char" + s])
         data["p1stock" + s] = html.escape(kwargs.get("p1stock" + s, "0"))
@@ -49,9 +59,6 @@ def filler(**kwargs):
         data["p2stock" + s] = html.escape(kwargs.get("p2stock" + s, "0"))
         p2stock = myinput("p2stock" + s, mytype="number", mymin="0", mymax="4",
                           value=data["p2stock" + s])
-        data["stage" + s] = html.escape(kwargs.get("stage" + s, ""))
-        stage = select("stage" + s, STAGES,
-                       kwargs.get("stage" + s, ""))
         data["win" + s] = ""
         if int(data["p1stock" + s]) > int(data["p2stock" + s]):
             data["win" + s] = "1"
@@ -60,6 +67,8 @@ def filler(**kwargs):
         details += br + p1char + p2char + stage + br + p1stock + p2stock + '\n'
         if data["p1stock" + s] == data["p2stock" + s] == "0":
             data["p1stock" + s] = data["p2stock" + s] = ""
+        if not data["stage" + s]:
+            data["p1char" + s] = data["p2char" + s] = ""
     wins = [data["win" + str(g)] for g in range(1, 6)]
     if wins.count("1") >= 3:
         data["win"] = "1"
