@@ -31,13 +31,6 @@ def filler(**kwargs):
     nbgames = 5
     if data["set_len"] == "bo3":
         nbgames = 3
-    template = """|{myround}win={win}
-"""
-    for game in range(1, nbgames+1):
-        template += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
-    template += """|{myround}date={date}
-|{myround}details={details}
-"""
     today = datetime.date.today()
     if data["server_date"] == "yesterday":
         today -= datetime.timedelta(days=1)
@@ -83,9 +76,18 @@ def filler(**kwargs):
     wins = [data["win" + str(g)] for g in range(1, nbgames+1)]
     if wins.count("1") >= (nbgames//2)+1:
         data["win"] = "1"
+        nbgames = wins.count("1") + wins.count("2")
     if wins.count("2") >= (nbgames//2)+1:
         data["win"] = "2"
+        nbgames = wins.count("1") + wins.count("2")
     myform = form(myround + br + details + server_date + set_len,
                   "fill", "post")
+    template = """|{myround}win={win}
+"""
+    for game in range(1, nbgames+1):
+        template += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
+    template += """|{myround}date={date}
+|{myround}details={details}
+"""
     myarea = textarea(rows="10", cols="150", txt=template.format(**data))
     return page("filler", myform + myarea)
