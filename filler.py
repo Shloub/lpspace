@@ -16,7 +16,6 @@ STAGES = ["", "Battlefield", "Dream Land", "Final Destination",
 DETAILS = "{{BracketMatchDetails|reddit=|comment=|vod=}}"
 
 
-
 def filler(**kwargs):
     data = {"details": DETAILS,
             "myround": html.escape(kwargs.get("round", "")),
@@ -27,7 +26,7 @@ def filler(**kwargs):
                          data["server_date"])
     data["set_len"] = html.escape(kwargs.get("set_len", "bo5"))
     set_len = select("set_len", ["bo5", "bo3"],
-                         data["set_len"])
+                     data["set_len"])
     nbgames = 5
     if data["set_len"] == "bo3":
         nbgames = 3
@@ -88,7 +87,13 @@ def filler(**kwargs):
 |{myround}win={win}
 """
     for game in range(1, nbgames+1):
-        template += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
+        template += ("|{myround}p1char{game}={p1char{game}} "
+                     "|{myround}p2char{game}={p2char{game}} "
+                     "|{myround}p1stock{game}={p1stock{game}} "
+                     "|{myround}p2stock{game}={p2stock{game}} "
+                     "|{myround}win{game}={win{game}} "
+                     "|{myround}stage{game}={stage{game}}\n"
+                     ).replace("{game}", str(game))
     template += """|{myround}date={date}
 |{myround}details={details}
 """
