@@ -62,7 +62,6 @@ def textarea(name=None, rows=None, cols=None, txt=""):
     d = {'name': name, 'rows': rows, 'cols': cols}
     s = " ".join(i+'="'+d[i]+'"' for i in d if d[i])
     template = """<textarea {s}>
-{txt}
-</textarea>
+{txt}</textarea>
 """
     return template.format(s=s, txt=txt)
