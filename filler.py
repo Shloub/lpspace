@@ -95,7 +95,6 @@ def filler(**kwargs):
                      "|{myround}stage{game}={stage{game}}\n"
                      ).replace("{game}", str(game))
     template += """|{myround}date={date}
-|{myround}details={details}
-"""
+|{myround}details={details}"""
     myarea = textarea(rows="10", cols="150", txt=template.format(**data))
     return page("filler", myform + myarea)
