@@ -74,15 +74,18 @@ def filler(**kwargs):
         if not data["stage" + s]:
             data["p1char" + s] = data["p2char" + s] = ""
     wins = [data["win" + str(g)] for g in range(1, nbgames+1)]
-    if wins.count("1") >= (nbgames//2)+1:
+    data["p1score"] = wins.count("1")
+    data["p2score"] = wins.count("2")
+    if data["p1score"] >= (nbgames//2)+1:
         data["win"] = "1"
-        nbgames = wins.count("1") + wins.count("2")
-    if wins.count("2") >= (nbgames//2)+1:
+        nbgames = data["p1score"] + data["p2score"]
+    if data["p2score"] >= (nbgames//2)+1:
         data["win"] = "2"
-        nbgames = wins.count("1") + wins.count("2")
+        nbgames = data["p1score"] + data["p2score"]
     myform = form(myround + br + details + server_date + set_len,
                   "fill", "post")
-    template = """|{myround}win={win}
+    template = """|{myround}p1score={p1score} |{myround}p2score={p2score}
+|{myround}win={win}
 """
     for game in range(1, nbgames+1):
         template += "|{myround}p1char{game}={p1char{game}} |{myround}p2char{game}={p2char{game}} |{myround}p1stock{game}={p1stock{game}} |{myround}p2stock{game}={p2stock{game}} |{myround}win{game}={win{game}} |{myround}stage{game}={stage{game}}\n".replace("{game}", str(game))
