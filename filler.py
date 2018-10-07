@@ -1,5 +1,6 @@
 import datetime
 import html
+import re
 
 from myhtml import br, form, myinput, page, select, textarea
 
@@ -16,11 +17,37 @@ STAGES = ["", "Battlefield", "Dream Land", "Final Destination",
 DETAILS = "{{BracketMatchDetails|reddit=|comment=|vod=}}"
 
 
+def load(s):
+    if not s:
+        return {}
+    m = re.search("\|(\w+)p1=", s)
+    myround = m.group(1)
+    m = re.search("\|" + myround + "p1=(\w+)", s)
+    p1 = m.group(1)
+    m = re.search("\|" + myround + "p2=(\w+)", s)
+    p2 = m.group(1)
+    m = re.search("\|" + myround + "p1flag=(\w+)", s)
+    p1flag = m.group(1)
+    m = re.search("\|" + myround + "p2flag=(\w+)", s)
+    p2flag = m.group(1)
+    return {"myround": myround,
+            "p1": p1,
+            "p2": p2,
+            "p1flag": p1flag,
+            "p2flag": p2flag,
+            }
+
+
 def filler(**kwargs):
     data = {"details": DETAILS,
             "myround": html.escape(kwargs.get("round", "")),
+            "p1": html.escape(kwargs.get("p1", "")),
+            "p2": html.escape(kwargs.get("p2", "")),
+            "p1flag": html.escape(kwargs.get("p1flag", "")),
+            "p2flag": html.escape(kwargs.get("p2flag", "")),
             "win": "",
             }
+    data.update(load(kwargs.get("load", "")))
     data["server_date"] = html.escape(kwargs.get("server_date", "today"))
     server_date = select("server_date", ["today", "yesterday"],
                          data["server_date"])
@@ -37,6 +64,10 @@ def filler(**kwargs):
     date = today.strftime("%B {day}, %Y".format(day=day))
     data["date"] = date
     myround = myinput("round", value=data["myround"])
+    p1 = myinput("p1", value=data["p1"])
+    p2 = myinput("p2", value=data["p2"])
+    p1flag = myinput("p1flag", value=data["p1flag"])
+    p2flag = myinput("p2flag", value=data["p2flag"])
     details = ""
     prevp1char = prevp2char = ""
     for g in range(1, nbgames+1):
@@ -81,9 +112,11 @@ def filler(**kwargs):
     if data["p2score"] >= (nbgames//2)+1:
         data["win"] = "2"
         nbgames = data["p1score"] + data["p2score"]
-    myform = form(myround + br + details + server_date + set_len,
+    myform = form(myround + br + p1 + p2 + br + p1flag + p2flag + br
+                  + details + server_date + set_len,
                   "fill", "post")
-    template = """|{myround}p1score={p1score} |{myround}p2score={p2score}
+    template = """|{myround}p1={p1} |{myround}p1flag={p1flag} |{myround}p1score={p1score}
+|{myround}p2={p2} |{myround}p2flag={p2flag} |{myround}p2score={p2score}
 |{myround}win={win}
 """
     for game in range(1, nbgames+1):
@@ -96,5 +129,7 @@ def filler(**kwargs):
                      ).replace("{game}", str(game))
     template += """|{myround}date={date}
 |{myround}details={details}"""
-    myarea = textarea(rows="10", cols="150", txt=template.format(**data))
-    return page("filler", myform + myarea)
+    myarea = textarea(rows="12", cols="150", txt=template.format(**data))
+    loadarea = textarea("load")
+    loadform = form(loadarea, "load", "post")
+    return page("filler", myform + myarea + loadform)
