@@ -20,15 +20,15 @@ DETAILS = "{{BracketMatchDetails|reddit=|comment=|vod=}}"
 def load(s):
     if not s:
         return {}
-    m = re.search("\|(\w+)p1=", s)
+    m = re.search("\|(\w*)p1=", s)
     myround = m.group(1)
-    m = re.search("\|" + myround + "p1=(\w+)", s)
+    m = re.search("\|" + myround + "p1=(\w*)", s)
     p1 = m.group(1)
-    m = re.search("\|" + myround + "p2=(\w+)", s)
+    m = re.search("\|" + myround + "p2=(\w*)", s)
     p2 = m.group(1)
-    m = re.search("\|" + myround + "p1flag=(\w+)", s)
+    m = re.search("\|" + myround + "p1flag=(\w*)", s)
     p1flag = m.group(1)
-    m = re.search("\|" + myround + "p2flag=(\w+)", s)
+    m = re.search("\|" + myround + "p2flag=(\w*)", s)
     p2flag = m.group(1)
     return {"myround": myround,
             "p1": p1,
